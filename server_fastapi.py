@@ -15,7 +15,7 @@ import GPUtil
 import psutil
 import torch
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query, Request, status
+from fastapi import FastAPI, HTTPException, Query, Request, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from scipy.io import wavfile
@@ -132,49 +132,49 @@ if __name__ == "__main__":
     @app.api_route("/voice", methods=["GET", "POST"], response_class=AudioResponse)
     async def voice(
         request: Request,
-        text: str = Query(..., min_length=1, max_length=limit, description="セリフ"),
-        encoding: str = Query(None, description="textをURLデコードする(ex, `utf-8`)"),
-        model_id: int = Query(
+        text: str = Form(..., min_length=1, max_length=limit, description="セリフ"),
+        encoding: str = Form(None, description="textをURLデコードする(ex, `utf-8`)"),
+        model_id: int = Form(
             0, description="モデルID。`GET /models/info`のkeyの値を指定ください"
         ),
-        speaker_name: str = Query(
+        speaker_name: str = Form(
             None,
             description="話者名(speaker_idより優先)。esd.listの2列目の文字列を指定",
         ),
-        speaker_id: int = Query(
+        speaker_id: int = Form(
             0, description="話者ID。model_assets>[model]>config.json内のspk2idを確認"
         ),
-        sdp_ratio: float = Query(
+        sdp_ratio: float = Form(
             DEFAULT_SDP_RATIO,
             description="SDP(Stochastic Duration Predictor)/DP混合比。比率が高くなるほどトーンのばらつきが大きくなる",
         ),
-        noise: float = Query(
+        noise: float = Form(
             DEFAULT_NOISE,
             description="サンプルノイズの割合。大きくするほどランダム性が高まる",
         ),
-        noisew: float = Query(
+        noisew: float = Form(
             DEFAULT_NOISEW,
             description="SDPノイズ。大きくするほど発音の間隔にばらつきが出やすくなる",
         ),
-        length: float = Query(
+        length: float = Form(
             DEFAULT_LENGTH,
             description="話速。基準は1で大きくするほど音声は長くなり読み上げが遅まる",
         ),
-        language: Languages = Query(ln, description="textの言語"),
-        auto_split: bool = Query(DEFAULT_LINE_SPLIT, description="改行で分けて生成"),
-        split_interval: float = Query(
+        language: Languages = Form(ln, description="textの言語"),
+        auto_split: bool = Form(DEFAULT_LINE_SPLIT, description="改行で分けて生成"),
+        split_interval: float = Form(
             DEFAULT_SPLIT_INTERVAL, description="分けた場合に挟む無音の長さ（秒）"
         ),
-        assist_text: Optional[str] = Query(
+        assist_text: Optional[str] = Form(
             None,
             description="このテキストの読み上げと似た声音・感情になりやすくなる。ただし抑揚やテンポ等が犠牲になる傾向がある",
         ),
-        assist_text_weight: float = Query(
+        assist_text_weight: float = Form(
             DEFAULT_ASSIST_TEXT_WEIGHT, description="assist_textの強さ"
         ),
-        style: Optional[str] = Query(DEFAULT_STYLE, description="スタイル"),
-        style_weight: float = Query(DEFAULT_STYLE_WEIGHT, description="スタイルの強さ"),
-        reference_audio_path: Optional[str] = Query(
+        style: Optional[str] = Form(DEFAULT_STYLE, description="スタイル"),
+        style_weight: float = Form(DEFAULT_STYLE_WEIGHT, description="スタイルの強さ"),
+        reference_audio_path: Optional[str] = Form(
             None, description="スタイルを音声ファイルで行う"
         ),
     ):
